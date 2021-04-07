@@ -17,7 +17,7 @@ struct __FILE
 }; 
 
 FILE __stdout;       
-//定义_sys_exit()以避免使用半主机模式    
+
 void _sys_exit(int x) 
 { 
 	x = x; 
@@ -32,18 +32,13 @@ int fputc(int ch, FILE *f)
 #endif 
 
  
-#if EN_USART1_RX   //如果使能了接收
-//串口1中断服务程序
-//注意,读取USARTx->SR能避免莫名其妙的错误   	
-u8 USART_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
-//接收状态
-//bit15，	接收完成标志
-//bit14，	接收到0x0d
-//bit13~0，	接收到的有效字节数目
-u16 USART_RX_STA=0;       //接收状态标记	  
+#if EN_USART1_RX  
+
+u8 USART_RX_BUF[USART_REC_LEN];    
+
+u16 USART_RX_STA=0;       
 u16 DMA1_MEM_LEN;
-u8 ReceiveBuff[14]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,\
-                      0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+u8 ReceiveBuff[50];
 u8 ValveStatus[8]={0,0,0,0,0,0,0,0};
 int ValveLastStatus[8]={-1,-1,-1,-1,-1,-1,-1,-1};
 void uart_init(u32 bound){
@@ -89,11 +84,11 @@ void uart_init(u32 bound){
     
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1,ENABLE);
     DMA_DeInit(DMA1_Channel5);
-    DMA1_MEM_LEN=14;
+    DMA1_MEM_LEN=50;
     DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)&USART1->DR;  
     DMA_InitStructure.DMA_MemoryBaseAddr =(u32)ReceiveBuff;  
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC; 
-    DMA_InitStructure.DMA_BufferSize = 14; 
+    DMA_InitStructure.DMA_BufferSize = 50; 
     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable; 
     DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;  
     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;  
@@ -105,23 +100,27 @@ void uart_init(u32 bound){
     USART_DMACmd(USART1,USART_DMAReq_Rx,ENABLE);
     DMA_Cmd(DMA1_Channel5,ENABLE);
 }
-
+/*
+decode data from lora
+data structure 
+0a 0d         XX XX         XX XX         XX XX         XX XX         XX XX         XX XX         XX XX         XX XX         XX             XX             0d 0a 
+frame header  AnalogSig[0]  AnalogSig[1]  AnalogSig[2]  AnalogSig[3]  AnalogSig[4]  AnalogSig[5]  AnalogSig[6]  AnalogSig[7]  DigitalSig[0]  DigitalSig[1]  frame tail
+*/
 void LoraDataDecode(u8 *pData)
 {
-    LED_G=!LED_G;
+    u8 i;
+    
     if(pData==NULL)
     {
         return;
     }
-    if(pData[0]==0x3a&&pData[3]==0x0d&&pData[4]==0x0a)
+    if(pData[0]==0x0a&&pData[1]==0x0d&&pData[20]==0x0d&&pData[21]==0x0a)
     {
-        u8 i;
-        for(i=0;i<8;i++)
-        {
-            u8 getValue=pData[2]&0x01;
-            pData[2]=pData[2]>>1;
-            switch(getValue)
-            {
+        LED_G=!LED_G;
+        for(i=0;i<8;i++){
+            u8 getValue=pData[18]&0x01;
+            pData[18]=pData[18]>>1;
+            switch(getValue){
                 case 0:
                     ValveStatus[i]=0;
                     break;
@@ -137,7 +136,7 @@ void USART1_IRQHandler(void)                	//串口1中断服务程序
 {
     
 u8 clear_flag=0;
-    LED_R=!LED_R;
+   
     if(USART_GetITStatus(USART1,USART_IT_IDLE)!=RESET)
     {
          
@@ -146,7 +145,7 @@ u8 clear_flag=0;
         clear_flag=USART1->SR;
         clear_flag=USART1->DR;
         DMA_ClearFlag(DMA1_FLAG_GL5|DMA1_FLAG_TC5|DMA1_FLAG_HT5|DMA1_FLAG_TE5);
-        DMA_SetCurrDataCounter(DMA1_Channel5,14);
+        DMA_SetCurrDataCounter(DMA1_Channel5,50);
         DMA_Cmd(DMA1_Channel5,ENABLE);
     }
 } 

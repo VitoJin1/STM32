@@ -10,10 +10,7 @@ int main(void)
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	delay_init();	    
 	uart_init(115200);	
-    HBridgeIOInit();  
-    
-    
-    
+    HBridgeIOInit();
     while(1){
     for(i=0;i<8;i++){
         if(ValveLastStatus[i]!=ValveStatus[i]){

@@ -67,6 +67,36 @@ void ReadStatus(void)
         IOStatus[7]=1;
     else if(A7Status==0)
         IOStatus[7]=0;
+    
+    if(A8Status==1)
+        IOStatus[8]=1;
+    else if(A8Status==0)
+        IOStatus[8]=0;
+    
+    if(A11Status==1)
+        IOStatus[9]=1;
+    else if(A11Status==0)
+        IOStatus[9]=0;
+    
+    if(A12Status==1)
+        IOStatus[10]=1;
+    else if(A12Status==0)
+        IOStatus[10]=0;
+    
+    if(A15Status==1)
+        IOStatus[11]=1;
+    else if(A15Status==0)
+        IOStatus[11]=0;
+    
+    if(B8Status==1)
+        IOStatus[12]=1;
+    else if(B8Status==0)
+        IOStatus[12]=0;
+    
+    if(B9Status==1)
+        IOStatus[13]=1;
+    else if(B9Status==0)
+        IOStatus[13]=0;
 }
 void TIM3_IRQHandler(void) 
 {

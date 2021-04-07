@@ -97,28 +97,7 @@ void uart_init(u32 bound){
   USART_Cmd(USART1, ENABLE);                    //使能串口1 
 
 }
-void UartSendData2Lora(u8 * pData)
-{
-    
-    u8 Data2Send;
-    USART_SendData(USART1,0x3a);
-    
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-    
-    USART_SendData(USART1,0x00);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-    
-    Data2Send=pData[0]*1+pData[1]*2+pData[2]*4+pData[3]*8+pData[4]*16+pData[5]*32+pData[6]*64+pData[7]*128;
-    USART_SendData(USART1,Data2Send);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-    
-    USART_SendData(USART1,0x0d);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-    
-    USART_SendData(USART1,0x0a);
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-    
-}
+
 void USART1_IRQHandler(void)                	//串口1中断服务程序
 {
 	
