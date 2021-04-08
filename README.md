@@ -10,10 +10,12 @@ instruction of using git:
      
  update existing project:
  1, go to git path and right click "Git Bash Here"
- 2,"git add XXXX "---XXXX means project name 
- 3,"git commit -m XXXX "----XXXX means the comment you want to add on changed files
- 4,"git push -u origin master"
- 
+ 2,XXXX means project name
+ $ git add XXXX
+ 3,XXXX means the comment you want to add on changed files
+ $ git commit -m XXXX 
+ 4,
+ $ git push -u origin master 
  update online changed code to local:
 1,check remote Repository
 $ git remote -v
