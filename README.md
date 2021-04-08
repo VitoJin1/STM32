@@ -13,3 +13,15 @@ instruction of using git:
  2,"git add XXXX "---XXXX means project name 
  3,"git commit -m XXXX "----XXXX means the comment you want to add on changed files
  4,"git push -u origin master"
+ 
+ update online changed code to local:
+1,check remote Repository
+$ git remote -v
+2,get remote version to local and copy as "temp"
+$ git fetch origin master:temp
+3,compare the difference between temp and local version
+$ git diff temp
+4, merge temp to master 
+$ git merge temp
+5, delete temp branch if you don't need it anymore 
+$ git branch -d temp
