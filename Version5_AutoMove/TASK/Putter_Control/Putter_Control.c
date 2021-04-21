@@ -4,16 +4,16 @@ void Putter_Init()
 {
     
     GPIO_InitTypeDef GPIO_InitStructure;
-    /*
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5;
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+    
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0|GPIO_Pin_1;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_Init(GPIOD,&GPIO_InitStructure); 
-    GPIO_ResetBits(GPIOD,GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5);
-    */
+    GPIO_Init(GPIOA,&GPIO_InitStructure); 
+    GPIO_ResetBits(GPIOA,GPIO_Pin_0|GPIO_Pin_1);
+    
     /*
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_14;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
@@ -24,6 +24,7 @@ void Putter_Init()
     GPIO_Init(GPIOB,&GPIO_InitStructure);
     GPIO_ResetBits(GPIOB,GPIO_Pin_8|GPIO_Pin_14);
     */
+    /*
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
@@ -32,7 +33,7 @@ void Putter_Init()
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
     GPIO_Init(GPIOE,&GPIO_InitStructure);
     GPIO_ResetBits(GPIOE,GPIO_Pin_3);
-    
+    */
 }
 void FanControl(u8 controlvalue)
 {
@@ -63,25 +64,19 @@ void fun_test(u8 mode,short signal)
     if(mode==MANUAL_MODE||mode==AUTO_MODE)
     {
         
-        if(signal==2)
-        {
-        
+        if(signal==2){
         Putter_IN1=1;
         delay_ms(5);
         Putter_IN2=0;
-        
         }
-        else if(signal==0)
-        {
-            
-        
+        else if(signal==1){   
+        delay_ms(5);
+        Putter_IN1=0;
         delay_ms(5);
         Putter_IN2=1;
         }
         else
         {
-            
-            
             Putter_IN1=0;
             delay_ms(5);
             Putter_IN2=0;
@@ -94,7 +89,6 @@ void fun_test(u8 mode,short signal)
         Putter_IN1=0;
         delay_ms(5);
         Putter_IN2=0;
-      
     }
 }
 void Putter_Control_Loop()

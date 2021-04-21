@@ -15,9 +15,10 @@ void Remote_to_Message()//remoter data transfer to message data 加入零点死区
         Command.Roller_Switch=0;
         Command.Balance_Switch=0;
         
-        Command.Left_Prop_Speed=0.0;
-        Command.Right_Prop_Speed=0.0;
-        Command.Roller_Speed=0.0;
+        Command.Left_Prop_Speed=0;
+        Command.Right_Prop_Speed=0;
+        Command.Roller_Speed=0;
+        Command.Pump_Speed=0;
     }
     else
     {     
@@ -27,9 +28,10 @@ void Remote_to_Message()//remoter data transfer to message data 加入零点死区
         Command.Left_X_Speed     = fRamp_for_LORA(remote_data.ch2);
         Command.Left_Y_Speed     = fRamp_for_LORA(remote_data.ch3);
 
-        Command.Left_Prop_Speed  = iPwn_for_LORA(remote_data.prop_speed);
-        Command.Right_Prop_Speed = iPwn_for_LORA(remote_data.prop_speed);
-        Command.Roller_Speed     = iPwn_for_LORA(remote_data.roller_speed);
+        Command.Left_Prop_Speed  = iPwm_for_LORA(remote_data.prop_speed);
+        Command.Right_Prop_Speed = iPwm_for_LORA(remote_data.prop_speed);
+        Command.Roller_Speed     = iPwm_for_LORA(remote_data.roller_speed);
+        Command.Pump_Speed       = iPwm_for_LORA(remote_data.pump_speed);
         
         Command.Solenoid_Switch  = sRamp_for_LORA(remote_data.valve_switch);
         Command.Mode             = sRamp_for_LORA(remote_data.mode_switch);
@@ -71,7 +73,7 @@ short sRamp_for_LORA(int16_t temp)//sbus 开关量翻译
         return 0;// receive 0 and receive error will generate 0 command.
 }
 
-int iPwn_for_LORA(int16_t temp)// joystick value ignore 0-1000 , 25000 up ,   1000- 25000 map to 0-750
+int iPwm_for_LORA(int16_t temp)// joystick value ignore 0-1000 , 25000 up ,   1000- 25000 map to 0-750
 {
     int result;
     if(temp<1000)

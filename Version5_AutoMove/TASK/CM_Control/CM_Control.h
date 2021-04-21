@@ -128,6 +128,19 @@ void PID_Calc(PID_Regulator *pid);
   CM_RIGHT_RAMP,\
 }\
 
+//for balance improvement 
+//#define PROP_ANGLE_LOOP_PID \
+//{\
+//  0,0,{0,0},\
+//  1.5,0,0.0,\
+//  0,0,0,\
+//  500000,0,500000,\
+//  0,PROP_ANGLE_OUTPUT_MAX,0,\
+//  &PropPIDOutterCalc,\
+//  CM_LEFT_RAMP,\
+//  0,0,\
+//}\
+
 
 #define PROP_ANGLE_LOOP_PID \
 {\
@@ -136,7 +149,7 @@ void PID_Calc(PID_Regulator *pid);
   0,0,0,\
   500000,0,500000,\
   0,PROP_ANGLE_OUTPUT_MAX,0,\
-  &PropPIDOutterCalc,\
+  &Prop_PID_Calc,\
   CM_LEFT_RAMP,\
   0,0,\
 }\
@@ -145,17 +158,34 @@ void PID_Calc(PID_Regulator *pid);
 
 //250,0,50 start-----100,0,0
 
+
+//for balance improvement
+//#define PROP_GYRO_LOOP_PID \
+//{\
+//  0,0,{0,0},\
+//  100,0,0,\
+//  0,0,0,\
+//  500000,0,500000,\
+//  0,PROP_GYRO_OUTPUT_MAX,0,\
+//  &PropPIDInnnerCalc,\
+//  CM_LEFT_RAMP,\
+//  0,0,\
+//}\
+
+
 #define PROP_GYRO_LOOP_PID \
 {\
   0,0,{0,0},\
-  100,0,0,\
+  250,0,50,\
   0,0,0,\
   500000,0,500000,\
   0,PROP_GYRO_OUTPUT_MAX,0,\
-  &PropPIDInnnerCalc,\
+  &Prop_PID_Calc,\
   CM_LEFT_RAMP,\
   0,0,\
 }\
+
+
 
 extern PID_Regulator CM_LEFT_PID;
 extern PID_Regulator CM_RIGHT_PID;

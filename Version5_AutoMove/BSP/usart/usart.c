@@ -55,7 +55,7 @@ float right_prop=0.2;
 float prop_stop=0;
 
 u8 IMU_DATA_Cache[91];
-u8 SBUS_DATA_Cache[22];
+u8 SBUS_DATA_Cache[44];
 
 Remote remote_data;
 Message Command;
@@ -135,7 +135,7 @@ volatile int temp_right=0;
 volatile float temp_X=0.0;
 volatile float temp_Y=0.0;
 volatile int temp_roller=0;
-
+int lora_receive_cnt=0;
 void USART1_IRQHandler(void)                	//串口4中断服务程序
 {
 	//USART_SendData(USART1,0x01);
@@ -268,66 +268,6 @@ if(USART_RX_STA&0x8000)// all receiving finished
     Command.Right_Y_Speed=Average_Limit_Filter(Y_Command_Filter,4,1.0,-1.0);
     
     
-    /*
-    last_prop_left[3]=last_prop_left[2];
-    last_prop_right[3]=last_prop_right[2];
-    last_prop_left[2]=last_prop_left[1];
-    last_prop_right[2]=last_prop_right[1];
-    last_prop_left[1]=last_prop_left[0];
-    last_prop_right[1]=last_prop_right[0];
-    last_prop_left[0]=Command.Left_Prop_Speed;
-    last_prop_right[0]=Command.Right_Prop_Speed;
-    
-    printf("\r\n");
-    printf("1=%d, 2=%d\r\n",Command.Left_Prop_Speed,Command.Right_Prop_Speed);
-    if(Command.Left_Prop_Speed==0&&fabs(Command.Left_Prop_Speed-temp_left)>100)
-    {
-        printf("processing\r\n");
-        if(last_prop_left[1]==0&&last_prop_left[2]==0&&last_prop_left[3]==0)
-        {
-            Command.Left_Prop_Speed=0;
-            printf("Set zero\r\n");
-        }
-        else
-        {
-            printf("replacing\r\n");
-            if( last_prop_left[1]!=0)
-                Command.Left_Prop_Speed=last_prop_left[1];
-            else if(last_prop_left[2]!=0)
-                Command.Left_Prop_Speed=last_prop_left[2];
-            else if(last_prop_left[3]!=0)
-                Command.Left_Prop_Speed=last_prop_left[3];       
-        }
-    }       
-        if(Command.Right_Prop_Speed==0&&fabs(Command.Right_Prop_Speed-temp_right)>100)
-    {
-        if(last_prop_right[1]==0&&last_prop_right[2]==0&&last_prop_right[3]==0)
-            Command.Right_Prop_Speed=0;
-        else
-        {
-            if( last_prop_right[1]!=0)
-                Command.Right_Prop_Speed=last_prop_right[1];
-            else if(last_prop_left[2]!=0)
-                Command.Right_Prop_Speed=last_prop_right[2];
-            else if(last_prop_left[3]!=0)
-                Command.Right_Prop_Speed=last_prop_right[3];       
-        }
-    }
-    temp_left=Command.Left_Prop_Speed;
-        temp_right=Command.Right_Prop_Speed;*/
-        
-        
-        
-        
-   
-    
-    //if(Command.roller==1)
-    //Absolute_Calc( Command.x_vel,Command.y_vel,Initial_C,Initial_Left,Initial_Right,Rotate_Matrix);
-    
-    
-    
-    
-   
     
         USART_RX_STA=0;
 }
@@ -433,7 +373,7 @@ GPIO_InitTypeDef GPIO_InitStructure;
     DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)&USART3->DR;
     DMA_InitStructure.DMA_Memory0BaseAddr = (u32)SBUS_DATA_Cache;
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory ;
-    DMA_InitStructure.DMA_BufferSize = 250;
+    DMA_InitStructure.DMA_BufferSize = 220;
     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
     DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
@@ -449,6 +389,7 @@ GPIO_InitTypeDef GPIO_InitStructure;
 }
 u8 Res;
 u8 u3receive_count=0;
+u8 DMA_Residual_length;
 void USART3_IRQHandler(void)                	//串口1中断服务程序
 { u8 clear_flag=0;
     
@@ -461,21 +402,35 @@ void USART3_IRQHandler(void)                	//串口1中断服务程序
 //    USART_ClearITPendingBit(USART3,USART_IT_RXNE);
 //}
 if(USART_GetITStatus(USART3,USART_IT_IDLE)!=RESET){
+    
     u8 i=0;
     DMA_Cmd(DMA1_Stream1,DISABLE);
     clear_flag=USART3->SR;
     clear_flag=USART3->DR;
     DMA_ClearFlag(DMA1_Stream1,DMA_FLAG_TCIF1|DMA_FLAG_FEIF1|DMA_FLAG_DMEIF1|DMA_FLAG_TEIF1|DMA_FLAG_HTIF1);
-    RemoteDataProcess(SBUS_DATA_Cache);
-    DMA_SetCurrDataCounter(DMA1_Stream1,22);
-    DMA_Cmd(DMA1_Stream1,ENABLE);
     time_tick_LORA=time_tick_1ms;
-    /*
     for(i=0;i<22;i++){
-    USART_SendData(USART1,SBUS_DATA_Cache[i]);
-        while(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=SET);
-        
-    }*/
+        if(SBUS_DATA_Cache[i]==0x0a&&SBUS_DATA_Cache[i+1]==0x0d&&SBUS_DATA_Cache[i+20]==0x0d&&SBUS_DATA_Cache[i+21]==0x0a)
+        {
+             RemoteDataProcess(&SBUS_DATA_Cache[i]);
+            break;
+        }
+    }
+    DMA_SetCurrDataCounter(DMA1_Stream1,44);
+    DMA_Cmd(DMA1_Stream1,ENABLE);
+    
+    
+//    USART_SendData(USART1,0xff);
+//    while(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=SET);
+//    for(i=0;i<22;i++){
+//    USART_SendData(USART1,SBUS_DATA_Cache[i]);
+//        while(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=SET);
+//        
+//    }
+//    USART_SendData(USART1,0xff);
+//    while(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=SET);
+    
+    
 }
 }
 
@@ -535,7 +490,7 @@ GPIO_InitTypeDef GPIO_InitStructure;
     DMA_InitStructure.DMA_BufferSize = 910;
     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
     DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;                                                                                                                                                                                                                                
     DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
     DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
     DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
@@ -545,7 +500,6 @@ GPIO_InitTypeDef GPIO_InitStructure;
     DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
     DMA_Init(DMA1_Stream2, &DMA_InitStructure);
     DMA_Cmd(DMA1_Stream2, ENABLE);
-    
 }
 u8 Res;
 int u4receive_count=0;
@@ -591,11 +545,7 @@ void RemoteDataProcess(uint8_t *pData)
     }
     u8 i=0;
     uint16_t temp=0;
-    
-    
     /*
-    
-       
     for(i=0;i<16;i=i+2)
     { 
         temp=pData[2+i]*256+pData[2+i+1];
@@ -611,70 +561,80 @@ void RemoteDataProcess(uint8_t *pData)
     printf("\r\n");
     */
     //prevent read ffff and regard it as 65535 ,regonize error message
-    for(i=0;i<16;i=i+2)
+    
+    
+    
+    if(pData[0]==0x0a&&pData[1]==0x0d&&pData[20]==0x0d&&pData[21]==0x0a)
     {
-        RawAnalogDataFromLora[i/2]=pData[2+i]*256+pData[2+i+1];
-        if(ABS(RawAnalogDataFromLoraLast[i/2]-RawAnalogDataFromLora[i/2])>10000)
-            RawAnalogDataFromLora[i/2]=RawAnalogDataFromLora[i/2];
-    }
-    
-    remote_data.ch2=(pData[2]*256+pData[3]*1);
-    remote_data.ch3=(pData[4]*256+pData[5]*1);
-    remote_data.ch1=(pData[6]*256+pData[7]*1);
-    remote_data.ch0=(pData[8]*256+pData[9]*1);
-    
-    remote_data.roller_speed=(pData[10]*256+pData[11]*1);
-    //(pData[12]*256+pData[13]*1);
-    //(pData[14]*256+pData[15]*1);
-    remote_data.prop_speed=(pData[16]*256+pData[17]*1);
-    
-    if( (((pData[18]>>7)&0x01)==1)  && (((pData[18]>>6)&0x01)==0)  )
-        remote_data.pose=0;
-    else if( (((pData[18]>>7)&0x01)==0)  && (((pData[18]>>6)&0x01)==0) )
-        remote_data.pose=1;
-    else if( (((pData[18]>>7)&0x01)==0)  && (((pData[18]>>6)&0x01)==1)  )
-        remote_data.pose=2;
-    else 
-        remote_data.pose=0;// error situation
-    
-    
-    if( (((pData[18]>>5)&0x01)==0)  && (((pData[18]>>4)&0x01)==0) )
-        remote_data.screw_switch=0;
-    else if( (((pData[18]>>5)&0x01)==1)  && (((pData[18]>>4)&0x01)==0) )
-        remote_data.screw_switch=1;
-    else if( (((pData[18]>>5)&0x01)==0)  && (((pData[18]>>4)&0x01)==1) )
-        remote_data.screw_switch=2;
-    /*else 
-        remote_data.screw_switch=0;*/// error situation
-    /*
-        temp=(pData[18]>>5)&0x01;
-        printf("screw =%d",temp);
-        temp=(pData[18]>>4)&0x01;
-        printf("     %d    ",temp);
-    */
-    if( (((pData[18]>>3)&0x01)==1)  && (((pData[18]>>2)&0x01)==0) )
-        remote_data.mode_switch=0;
-    else if (  (((pData[18]>>3)&0x01)==0)  && (((pData[18]>>2)&0x01)==0) )
-        remote_data.mode_switch=1;
-    else if (  (((pData[18]>>3)&0x01)==0)  && (((pData[18]>>2)&0x01)==1) )
-        remote_data.mode_switch=2;
-    
-    /*
-        temp=(pData[18]>>3)&0x01;
-        printf("mode =%d",temp);
-        temp=(pData[18]>>2)&0x01;
-        printf("    =%d\r\n",temp);  
-    */
-    /*
-    else  
-        remote_data.mode_switch=0;*///error situation 
+        for(i=0;i<16;i=i+2)
+        {
+            RawAnalogDataFromLora[i/2]=pData[2+i]*256+pData[2+i+1];
+            if(ABS(RawAnalogDataFromLoraLast[i/2]-RawAnalogDataFromLora[i/2])>10000)
+                RawAnalogDataFromLora[i/2]=RawAnalogDataFromLora[i/2];
+        }
+        
+        remote_data.ch2=(pData[2]*256+pData[3]*1);
+        remote_data.ch3=(pData[4]*256+pData[5]*1);
+        remote_data.ch1=(pData[6]*256+pData[7]*1);
+        remote_data.ch0=(pData[8]*256+pData[9]*1);
+        
+        remote_data.roller_speed=(pData[10]*256+pData[11]*1);
+        remote_data.pump_speed=(pData[12]*256+pData[13]*1);
+        //(pData[14]*256+pData[15]*1);
+        remote_data.prop_speed=(pData[16]*256+pData[17]*1);
+        
+        if( (((pData[18]>>7)&0x01)==1)  && (((pData[18]>>6)&0x01)==0)  )
+            remote_data.pose=0;
+        else if( (((pData[18]>>7)&0x01)==0)  && (((pData[18]>>6)&0x01)==0) )
+            remote_data.pose=1;
+        else if( (((pData[18]>>7)&0x01)==0)  && (((pData[18]>>6)&0x01)==1)  )
+            remote_data.pose=2;
+        else 
+            remote_data.pose=0;// error situation
+        
+        
+        if( (((pData[18]>>5)&0x01)==0)  && (((pData[18]>>4)&0x01)==0) )
+            remote_data.screw_switch=0;
+        else if( (((pData[18]>>5)&0x01)==1)  && (((pData[18]>>4)&0x01)==0) )
+            remote_data.screw_switch=1;
+        else if( (((pData[18]>>5)&0x01)==0)  && (((pData[18]>>4)&0x01)==1) )
+            remote_data.screw_switch=2;
+        /*else 
+            remote_data.screw_switch=0;*/// error situation
+        /*
+            temp=(pData[18]>>5)&0x01;
+            printf("screw =%d",temp);
+            temp=(pData[18]>>4)&0x01;
+            printf("     %d    ",temp);
+        */
+        if( (((pData[18]>>3)&0x01)==1)  && (((pData[18]>>2)&0x01)==0) )
+            remote_data.mode_switch=0;
+        else if (  (((pData[18]>>3)&0x01)==0)  && (((pData[18]>>2)&0x01)==0) )
+            remote_data.mode_switch=1;
+        else if (  (((pData[18]>>3)&0x01)==0)  && (((pData[18]>>2)&0x01)==1) )
+            remote_data.mode_switch=2;
+        
+        /*
+            temp=(pData[18]>>3)&0x01;
+            printf("mode =%d",temp);
+            temp=(pData[18]>>2)&0x01;
+            printf("    =%d\r\n",temp);  
+        */
+        /*
+        else  
+            remote_data.mode_switch=0;*///error situation 
 
-    //(pData[18]>>1)&0x01;
-    //(pData[18]>>0)&0x01;
-    //(pData[19]>>7)&0x01;
-    //(pData[19]>>6)&0x01;
-    remote_data.roller_switch  =(pData[19]>>5)&0x01;
-    // (pData[19]>>4)&0x01;
-    remote_data.balance_switch =(pData[19]>>3)&0x01;
-    remote_data.valve_switch   =(pData[19]>>2)&0x01;
+        //(pData[18]>>1)&0x01;
+        //(pData[18]>>0)&0x01;
+        //(pData[19]>>7)&0x01;
+        //(pData[19]>>6)&0x01;
+        remote_data.roller_switch  =(pData[19]>>5)&0x01;
+        // (pData[19]>>4)&0x01;
+        remote_data.balance_switch =(pData[19]>>3)&0x01;
+        remote_data.valve_switch   =(pData[19]>>2)&0x01;
+        lora_receive_cnt++;
+    }
+    else {  
+        return;
+    }
 }

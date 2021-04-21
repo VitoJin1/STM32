@@ -19,7 +19,7 @@
 #define IGBT_Temperature_Address 0x2025
 #define Torque_Address 0x2002
 #define Cable_Wind_Speed (1500)
-#define Cable_Manual_Wind_Speed (3000)
+#define Cable_Manual_Wind_Speed (2500)
 #define MODBUS_RECEIVE_BUF 40
 #define Modbus_Max_Power    65
 #define Modbus_Max_Temp     80

@@ -49,8 +49,16 @@ void Roller_init(void)
     roller_init_flag=1;
     roller_initing_flag=0;
 }
-void Roller_Motor_Control(void)
-{
+void Pump_Control(void){
+    if(MODE==MANUAL_MODE||MODE==AUTO_MODE){
+        TIM_SetCompare2(TIM4,19000-Command.Pump_Speed);
+    }
+    else if(MODE==CALI_MODE){
+        TIM_SetCompare2(TIM4,19000);
+    }
+}
+
+void Roller_Motor_Control(void){
     if(prop_safe_start==0)
     {
         if(roller_last_state!=Command.Roller_Switch)

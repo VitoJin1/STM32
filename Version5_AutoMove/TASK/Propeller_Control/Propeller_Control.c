@@ -35,10 +35,9 @@ void Balance_Check(void)
     Balance_Flag=Command.Balance_Switch;
     if(Balance_Stable==0)
     {
-        if(Balance_Flag==2)
+        if(Balance_Flag==1)
         {
             Z_Euler_reference=Z_EulerAngle;
-            
             if(fabs(Z_Euler_reference-Z_Euler_Last_data)<0.1)
                 Balance_stable_cnt++;
             else
@@ -47,7 +46,6 @@ void Balance_Check(void)
             {
                 Balance_Stable=1;
                 LED_G=0;
-                
             }
             Z_Euler_Last_data=Z_Euler_reference;
         }
@@ -66,7 +64,6 @@ void Balance_Check(void)
         {
             PID_OUTER_Clear();
             Balance_Stable=0;
-            
         }
     }
 }
@@ -106,8 +103,6 @@ void Propeller_Control(void)
         
         prop_PID_output_r=200+PROP_INNER_PID.output;
         prop_PID_output_r=flimit(prop_PID_output_r,0,750);
-        
-        
     }
     else
     {

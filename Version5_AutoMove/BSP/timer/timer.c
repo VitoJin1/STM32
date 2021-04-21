@@ -30,40 +30,84 @@ void DisConnect_Check (void)
         SYSTEM_ERROR=SYSTEM_ERROR&0xFE;
     }
 }
+void TIM4_PWM_Init(u16 arr,u16 psc)
+{		 					 
+	GPIO_InitTypeDef GPIO_InitStructure;
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	TIM_OCInitTypeDef  TIM_OCInitStructure;
+	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4,ENABLE);  	
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); 
+	GPIO_PinAFConfig(GPIOB,GPIO_PinSource7,GPIO_AF_TIM4); 
+ 
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;          
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;       
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;    
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;       
+	GPIO_Init(GPIOB,&GPIO_InitStructure);              
+	  
+	TIM_TimeBaseStructure.TIM_Prescaler=psc;  
+	TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_Period=arr;  
+	TIM_TimeBaseStructure.TIM_ClockDivision=TIM_CKD_DIV1; 
+	TIM_TimeBaseInit(TIM4,&TIM_TimeBaseStructure);
+	
+	//初始化TIM14 Channel1 PWM模式	 
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; 
+ 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+	TIM_OC2Init(TIM4, &TIM_OCInitStructure);
+
+    TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);  
+ 
+    TIM_ARRPreloadConfig(TIM4,ENABLE);//ARPE使能
+	TIM_Cmd(TIM4, ENABLE);  //使能TIM14							  
+    TIM_SetCompare2(TIM4,18000);   
+}
+void Pump_Init(void){
+    u8 i=0;
+    TIM_SetCompare2(TIM4,18000);
+    for(i=0;i<30;i++)
+    delay_ms(50);
+    TIM_SetCompare2(TIM4,19000);
+    for(i=0;i<30;i++)
+    delay_ms(50);
+}
 void TIM2_PWM_Init(u32 arr,u32 psc)
 {		 					 
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);  	//TIM14时钟使能    
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); 	//使能PORTF时钟	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);  	
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE); 	
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	GPIO_PinAFConfig(GPIOB,GPIO_PinSource10,GPIO_AF_TIM2); 
     GPIO_PinAFConfig(GPIOB,GPIO_PinSource11,GPIO_AF_TIM2); 
     GPIO_PinAFConfig(GPIOA,GPIO_PinSource5,GPIO_AF_TIM2); 
 	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11|GPIO_Pin_10;           //GPIOF9
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;        //复用功能
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;	//速度100MHz
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;      //推挽复用输出
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        //上拉
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11|GPIO_Pin_10;          
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;       
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;    
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;       
 	GPIO_Init(GPIOB,&GPIO_InitStructure);              
    
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
     GPIO_Init(GPIOA,&GPIO_InitStructure);
 	  
-	TIM_TimeBaseStructure.TIM_Prescaler=psc;  //定时器分频
-	TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up; //向上计数模式
-	TIM_TimeBaseStructure.TIM_Period=arr;   //自动重装载值
+	TIM_TimeBaseStructure.TIM_Prescaler=psc;  
+	TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_Period=arr;  
 	TIM_TimeBaseStructure.TIM_ClockDivision=TIM_CKD_DIV1; 
 	
-	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseStructure);//初始化定时器14
+	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseStructure);
 	
 	//初始化TIM14 Channel1 PWM模式	 
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; //PWM mode 1, enable when < compare value
- 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //output low when enable 
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; 
+ 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
 	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
     TIM_OC3Init(TIM2, &TIM_OCInitStructure);
     TIM_OC4Init(TIM2, &TIM_OCInitStructure);
@@ -163,8 +207,7 @@ void TIM3_IRQHandler(void)
         //accumulate_vel=accumulate_vel+Command.Right_Y_Speed;
 //        if(COMMUNICATION_FLAG==1)
 //        {
-         if(((time_tick_1ms+97)%SBUS_Updata_Loop==0))
-        {    
+         if(((time_tick_1ms+97)%SBUS_Updata_Loop==0)){    
              Remote_to_Message();
              //printf("received %d %d %d %d %d %d %d %d %d %d %d \r\n", remote_data.ch0, remote_data.ch1, remote_data.ch2, remote_data.ch3,remote_data.balance_switch,remote_data.mode_switch,remote_data.prop_speed,remote_data.roller_speed,remote_data.screw_switch,remote_data.valve_switch,remote_data.roller_switch);
             /*
@@ -173,7 +216,6 @@ void TIM3_IRQHandler(void)
             Command.Solenoid_Switch,Command.Mode,Command.Arm,Command.Roller_Switch,Command.Balance_Switch,Command.Pose);*/
             //printf("mode=%d arm=%d \r\n",Command.Mode,Command.Arm);
         }
-        
         //remember to bring it to unlock loop 2020/10/5
         if(((time_tick_1ms+469)%Ultrasonic_detect_Loop==0)&&prop_safe_start==0)
         {
@@ -182,7 +224,11 @@ void TIM3_IRQHandler(void)
             Trig1_Enable();
             time_tick_1s++;
         }
-        
+//          if(time_tick_1ms%1000==0)
+//            {
+//                printf("decode=%f %f %f %f ",Command.Right_X_Speed, Command.Right_Y_Speed, Command.Left_X_Speed,Command.Left_Y_Speed);
+//                printf("total=%d,cnt=%d\r\n",lora_receive_cnt,Unlock_signal_cnt);
+//            }
         if(ROBOT_UNLOCK==1)
         {
            // if((time_tick_1ms+267)%500==0)
@@ -209,10 +255,10 @@ void TIM3_IRQHandler(void)
             }
             
             if(time_tick_1ms%Cable_Control_Loop==0)
-            { 
+            {       
                 CableMotorControlLoop( );  
             }
-            
+          
             
             
             if(((time_tick_1ms+436)%500==0)&&(Safety_Flag==0))
@@ -229,8 +275,10 @@ void TIM3_IRQHandler(void)
            }*/
            if((time_tick_1ms+24)%Propeller_Control_Loop==0)
                Propeller_Control( );
-            if((time_tick_1ms+37)%Roller_Control_Loop==0)
+            if((time_tick_1ms+37)%Roller_Control_Loop==0){
                 Roller_Motor_Control( );
+                Pump_Control();
+            }
            if((time_tick_1ms+333)%Valve_Control_Loop==0)
                Valve_Control(); 
         }
@@ -271,7 +319,7 @@ void Unlock_Robot_Detect(void)
        Unlock_signal_cnt=0;
    if(Unlock_signal_cnt>=20)
    {
-       if(Command.Arm==0&&Command.Mode==MANUAL_MODE&&Command.Balance_Switch==0&&Command.Solenoid_Switch==0&&Command.Left_Prop_Speed==0&&Command.Right_Prop_Speed==0&&Command.Roller_Speed==0&&Command.Pose==0)
+       if(Command.Arm==0&&Command.Mode==MANUAL_MODE&&Command.Balance_Switch==0&&Command.Solenoid_Switch==0&&Command.Left_Prop_Speed==0&&Command.Right_Prop_Speed==0&&Command.Roller_Speed==0&&Command.Pose==0&&Command.Pump_Speed==0)
        {
            LED_B=0;
            LED_Y=1;

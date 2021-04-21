@@ -6,4 +6,5 @@ extern int roller_change_cnt;
 void Roller_Motor_Control(void);
 void Roller_init(void);
 void Roller_ESC_Init_Detect(void);
+void Pump_Control(void);
 #endif

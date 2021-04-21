@@ -60,31 +60,32 @@ return :none
 */
 void CableMotorSpeedControl(int32_t LVel, int32_t RVel){
     
-    LVel=ilimit(LVel,-3000,3000);
-    RVel=ilimit(RVel,-3000,3000);
+    LVel=ilimit(LVel,-2500,2500);
+    RVel=ilimit(RVel,-2500,2500);
     if(LVel>=0){
-        LEFT_Dir=0;
-        delay_us(1);
-    }
-    else if(LVel<0){
         LEFT_Dir=1;
         delay_us(1);
     }
+    else if(LVel<0){
+        LEFT_Dir=0;
+        delay_us(1);
+    }
     if(RVel>=0){
-        RIGHT_Dir=1;
+        RIGHT_Dir=0;
         delay_us(1);
     }
     else if(RVel<0){
-        RIGHT_Dir=0;
+        RIGHT_Dir=1;
         delay_us(1);
     }
     
     if(ABS(LVel)<0.1){    //hardware connection error , TIM11 left  | TIM10 right
         TIM11_Freq_Config(0);
     }
-    else    
+    else    {
         TIM11_Freq_Config(1000000*60/(ABS(LVel)*PN008));//left pwm output
-    
+        printf("%d\r\n",LVel);
+    }
     left_total_pulse_cnt_times6-=LVel;
     
     if(ABS(RVel)<0.1)
@@ -163,6 +164,7 @@ void CableMotorControlLoop(void)
          if(pre_Right<0)
              Wind_Right=-Wind_Right;
     }
+    
     /*
     if (Cable_Switch==0){
         Cable_Switch=1;
@@ -192,21 +194,40 @@ void CableMotorControlLoop(void)
                     AutoMove.status=1;
                     break;
                 }
+                /* comes from B to A*/
                 case 2:case 4:{
                     if(AutoMove.current_step<AutoMove.total_step){
                         AutoMove.current_step++;
-                        
+                        AutoMove.vel_left=(AutoMove.PointB[0]-AutoMove.PointA[0])/6/AutoMove.total_step;
                         left_total_pulse_cnt_times6=left_total_pulse_cnt_times6+AutoMove.vel_left*PN008/600;
-                        AutoMove.vel_left=(AutoMove.PointA[0]-AutoMove.PointB[0])/6/AutoMove.total_step;
+                        
+                        if(AutoMove.vel_left>=0){
+                            LEFT_Dir=1;
+                            delay_us(1);
+                            
+                        }
+                        else if(AutoMove.vel_left<0){
+                            LEFT_Dir=0;
+                            delay_us(1);
+                        }
+                        AutoMove.vel_left=LIMIT_MIN_MAX(AutoMove.vel_left,-400,400);
                         TIM11_Freq_Config( 1000000/(ABS(AutoMove.vel_left))/10 );
-                        
-                        AutoMove.vel_right=(AutoMove.PointA[1]-AutoMove.PointB[1])/6/AutoMove.total_step;
+                        //printf("%d\r\n,2,4",1000000/(ABS(AutoMove.vel_left))/10);
+                        AutoMove.vel_right=(AutoMove.PointB[1]-AutoMove.PointA[1])/6/AutoMove.total_step;
+                         if(AutoMove.vel_right>=0){
+                            RIGHT_Dir=0;
+                            delay_us(1);
+                        }
+                        else if(AutoMove.vel_right<0){
+                            RIGHT_Dir=1;
+                            delay_us(1);
+                        }
                         right_total_pulse_cnt_times6=right_total_pulse_cnt_times6+AutoMove.vel_right*PN008/600;
-                        TIM10_Freq_Config( 1000000/(ABS(AutoMove.vel_right))/10 );
-                        
+                        AutoMove.vel_right=LIMIT_MIN_MAX(AutoMove.vel_right,-400,400);
+                        TIM10_Freq_Config( 1000000/(ABS(AutoMove.vel_right))/10 ); 
                     }
-                    else if(AutoMove.current_step==AutoMove.total_step)
-                    {
+                    
+                    else if( AutoMove.current_step==AutoMove.total_step ){
                         AutoMove.status=3;
                         TIM10_Freq_Config(0);
                         TIM11_Freq_Config(0);
@@ -230,18 +251,36 @@ void CableMotorControlLoop(void)
                     AutoMove.status=2;
                     break;
                 }
+                /*move from A to B */
                 case 3:{
                     if(AutoMove.current_step>0) {
                         AutoMove.current_step--;
                         //AutoMove.vel_left=(AutoMove.PointA[0]-AutoMove.PointB[0])*10/PN008/AutoMove.total_step;
                         AutoMove.vel_left=(AutoMove.PointA[0]-AutoMove.PointB[0])/6/AutoMove.total_step;
+                        if(AutoMove.vel_left>=0){
+                            LEFT_Dir=1;
+                            delay_us(1);
+                        }
+                        else if(AutoMove.vel_left<0){
+                            LEFT_Dir=0;
+                            delay_us(1);
+                        }
                         left_total_pulse_cnt_times6=left_total_pulse_cnt_times6+AutoMove.vel_left*PN008/600;
+                        AutoMove.vel_left=LIMIT_MIN_MAX(AutoMove.vel_left,-400,400);
                         TIM11_Freq_Config( 1000000/(ABS(AutoMove.vel_left))/10 );
-                       
+                        //printf("%d\r\n,3",1000000/(ABS(AutoMove.vel_left))/10);
                         AutoMove.vel_right=(AutoMove.PointA[1]-AutoMove.PointB[1])/6/AutoMove.total_step;
+                        if(AutoMove.vel_right>=0){
+                            RIGHT_Dir=0;
+                            delay_us(1);
+                        }
+                        else if(AutoMove.vel_right<0){
+                            RIGHT_Dir=1;
+                            delay_us(1);
+                        }
                         right_total_pulse_cnt_times6=right_total_pulse_cnt_times6+AutoMove.vel_right*PN008/600;
+                        AutoMove.vel_right=LIMIT_MIN_MAX(AutoMove.vel_right,-400,400);
                         TIM10_Freq_Config( 1000000/(ABS(AutoMove.vel_right))/10 );
-                         
                     }
                     else if(AutoMove.current_step==0)
                     {
@@ -259,7 +298,7 @@ void CableMotorControlLoop(void)
         CableMotorSpeedControl(Wind_Left,Wind_Right);
        
     
-    printf("%d  %d \r\n",AutoMove.status,AutoMove.current_step);
+   // printf("%d  %d \r\n",AutoMove.status,AutoMove.current_step);
 }
 void PID_Loop(void)
 {

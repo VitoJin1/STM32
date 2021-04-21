@@ -43,6 +43,10 @@ void BSP_Init(void)
     Ultrasonic1_Init( );
     //Fan_Control=1;
     CableMotor_Dir_Init();
+    TIM10_Freq_Config(0);
+    TIM11_Freq_Config(0);
+    TIM4_PWM_Init(19999,84-1);
+    Pump_Init();
     ROLLER_Switch=1;
     delay_ms(1000);
     Roller_init();

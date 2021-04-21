@@ -1,8 +1,8 @@
 #include "encoder.h"
 void Encoder_Init(void)
 {
-    TIM4_Init();//encoder1
-    TIM5_Init();//encoder2
+    //TIM4_Init();//encoder1
+    //TIM5_Init();//encoder2
     
 }
 void TIM4_Init(void)

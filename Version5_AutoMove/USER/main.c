@@ -152,11 +152,11 @@ int main(void)
        
         
         
-        /*
+        
          if(ROBOT_UNLOCK==1)
         {
         fun_test(MODE,Command.Arm);
-        }*/
+        }
         
         
         

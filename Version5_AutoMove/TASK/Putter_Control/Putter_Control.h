@@ -2,8 +2,8 @@
 #define _PUTTER_CONTROL_H_
 #include "main.h"
 
-#define Putter_IN1 PDout(4)
-#define Putter_IN2 PDout(5)
+#define Putter_IN1 PAout(0)
+#define Putter_IN2 PAout(1)
 
 #define Putter_IN3 PDout(4)
 #define Putter_IN4 PDout(5)
