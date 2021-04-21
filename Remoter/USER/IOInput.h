@@ -2,6 +2,7 @@
 #define __IOINPUT_H_
 #include "sys.h"
 void IOInit(void);
+void LED_Init(void);
 extern u8 IOStatus[14];
 #define A0Status GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0)
 #define A1Status GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_1)

@@ -4,6 +4,7 @@
 #include "IOInput.h"
 #include "timer.h"
 #include "iic.h"
+#include "led.h"
 
 u8 high_byte=0x00;
 u8 low_byte=0x00;
@@ -236,7 +237,7 @@ void UartSendData2Lora(int * pAnalogData, u8 * pDigitalData)
     
     u8 Data2Send;
     u8 i;
-    
+   
     USART_SendData(USART1,0x0a);
     while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
     
@@ -251,6 +252,7 @@ void UartSendData2Lora(int * pAnalogData, u8 * pDigitalData)
         Data2Send=pAnalogData[i]&0xff;
         USART_SendData(USART1,Data2Send);
         while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+        
     }
     
     Data2Send=pDigitalData[0]*128+pDigitalData[1]*64+pDigitalData[2]*32+pDigitalData[3]*16+pDigitalData[4]*8+pDigitalData[5]*4+pDigitalData[6]*2+pDigitalData[7]*1;
@@ -273,29 +275,25 @@ int main(void)
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	delay_init( );	  
     IOInit();  	
+    LED_Init();
 	uart_init(115200);
     IIC_Init();
-    
-
-	
     TIM3_Int_Init(999,71);    
 //    delay_ms(2000);
-  while(1)
-	{
-        
-        int i;
-        IICDataCollect();
-        /*
-        for(i=0;i<8;i++){
-            printf("%d=%d  ",i,IICCurrentData[i]);
-        }
-        for(i=0;i<14;i++){
-            printf("IO =%d ",IOStatus[i]);
-        }
-        printf("\r\n");*/
-        UartSendData2Lora(IICCurrentData,IOStatus);
-        delay_ms(500);
-        
+  while(1){
+    IICDataCollect();
+    /*
+    for(i=0;i<8;i++){
+        printf("%d=%d  ",i,IICCurrentData[i]);
+    }。。。。。、、
+    for(i=0;i<14;i++){
+        printf("IO =%d ",IOStatus[i]);
+    }
+    printf("\r\n");
+    */
+    UartSendData2Lora(IICCurrentData,IOStatus);
+    delay_ms(20);
+    
 	}	 
 } 
 

@@ -1,5 +1,6 @@
 #include "timer.h"
 #include "IOInput.h"
+#include "led.h"
 int64_t time_tick_1ms;
 void TIM3_Int_Init(u16 arr,u16 psc)
 {
@@ -38,25 +39,41 @@ void ReadStatus(void)
     else if(A1Status==0)
         IOStatus[1]=0;
     
-    if(A2Status==1)
+    if(A2Status==1){
         IOStatus[2]=1;
-    else if(A2Status==0)
+        
+    }
+    else if(A2Status==0){
         IOStatus[2]=0;
+        
+    }
     
-    if(A3Status==1)
+    if(A3Status==1){
         IOStatus[3]=1;
-    else if(A0Status==0)
+        
+    }
+    else if(A3Status==0){
         IOStatus[3]=0;
+       
+    }
     
-    if(A4Status==1)
+    if(A4Status==1){
         IOStatus[4]=1;
-    else if(A0Status==0)
+       
+    }
+    else if(A4Status==0){
         IOStatus[4]=0;
+       
+    }
     
-    if(A5Status==1)
+    if(A5Status==1){
         IOStatus[5]=1;
-    else if(A5Status==0)
+       
+    }
+    else if(A5Status==0){
         IOStatus[5]=0;
+      
+    }
     
     if(A6Status==1)
         IOStatus[6]=1;

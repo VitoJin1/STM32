@@ -41,12 +41,12 @@ u8 IIC_Wait_Ack(void){
 	while(READ_SDA){
 		ucErrTime++;
 		if(ucErrTime>250){
-            LED_B=0;
+           
 			IIC_Stop();
 			return 1;
 		} 
     }
-    LED_B=1;
+    
 	IIC_SCL=0;// ±÷” ‰≥ˆ0 	   
 	return 0;  
 }
