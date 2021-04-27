@@ -118,7 +118,7 @@ void TIM2_PWM_Init(u32 arr,u32 psc)
  
     TIM_ARRPreloadConfig(TIM2,ENABLE);//ARPE使能
 	TIM_Cmd(TIM2, ENABLE);  //使能TIM14							  
-    TIM_SetCompare1(TIM2,18450);   
+    TIM_SetCompare1(TIM2,18500);   
     // TIM_SetCompare3(TIM2,19000);
     // TIM_SetCompare4(TIM2,19000); 
 }

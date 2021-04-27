@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CORE;..\SYSTEM\delay;..\SYSTEM\sys;..\USER;..\HARDWARE\LED;..\HARDWARE\LCD;..\FWLIB\inc;..\HARDWARE\24CXX;..\HARDWARE\FLASH;..\HARDWARE\IIC;..\HARDWARE\KEY;..\HARDWARE\PWM;..\HARDWARE\TIMER;..\HARDWARE\TOUCH;..\BSP\bsp;..\BSP\modbus;..\BSP\timer;..\TASK\CM_Control;..\TASK\Base_Calculation;..\BSP\encoder;..\TASK\Encoder_Read;..\BSP\usart;..\HARDWARE\VISUAL_SCOPE;..\TASK\Propeller_Control;..\TASK\Step_Motor_Control;..\BSP\exti;..\TASK\Remote_Decode;..\TASK\Roller_Control;..\TASK\Imu_Decode;..\HARDWARE\OLED;..\TASK\Capture;..\TASK\Putter_Control;..\TASK\Ultrasonic_Control</IncludePath>
+              <IncludePath>..\CORE;..\SYSTEM\delay;..\SYSTEM\sys;..\USER;..\HARDWARE\LED;..\HARDWARE\LCD;..\FWLIB\inc;..\HARDWARE\24CXX;..\HARDWARE\FLASH;..\HARDWARE\IIC;..\HARDWARE\KEY;..\HARDWARE\PWM;..\HARDWARE\TIMER;..\HARDWARE\TOUCH;..\BSP\bsp;..\BSP\modbus;..\BSP\timer;..\TASK\CM_Control;..\TASK\Base_Calculation;..\BSP\encoder;..\TASK\Encoder_Read;..\BSP\usart;..\HARDWARE\VISUAL_SCOPE;..\TASK\Propeller_Control;..\TASK\Step_Motor_Control;..\BSP\exti;..\TASK\Remote_Decode;..\TASK\Roller_Control;..\TASK\Imu_Decode;..\HARDWARE\OLED;..\TASK\Capture;..\TASK\Putter_Control;..\TASK\Ultrasonic_Control;..\TASK\Pulse_Control</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -622,6 +622,11 @@
               <FileName>Ultrasonic.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\TASK\Ultrasonic_Control\Ultrasonic.c</FilePath>
+            </File>
+            <File>
+              <FileName>pulse.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\TASK\Pulse_Control\pulse.c</FilePath>
             </File>
           </Files>
         </Group>

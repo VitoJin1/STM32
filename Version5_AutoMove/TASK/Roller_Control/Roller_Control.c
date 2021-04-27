@@ -29,23 +29,23 @@ void Roller_init(void)
 {   
     u8 i;  
     roller_initing_flag=1;
-    TIM_SetCompare1(TIM2,17950);    
+    TIM_SetCompare1(TIM2,18500);    
     for(i=0;i<Roller_init_delay;i++)
     {
         delay_ms(50);
     } 
-    TIM_SetCompare1(TIM2,18950);
+    TIM_SetCompare1(TIM2,18000);
     for(i=0;i<Roller_init_delay;i++)
     {
         delay_ms(50);
     }                                              
     
-    TIM_SetCompare1(TIM2,18450);     
+    TIM_SetCompare1(TIM2,19000);     
     for(i=0;i<Roller_init_delay;i++)
     {
     delay_ms(50);
     } 
-     
+      TIM_SetCompare1(TIM2,18500);
     roller_init_flag=1;
     roller_initing_flag=0;
 }
@@ -77,21 +77,21 @@ void Roller_Motor_Control(void){
     {
         if(Command.Roller_Switch==0)
         { 
-            TIM_SetCompare1(TIM2,18450+(float)(Command.Roller_Speed/2.0f));
+            TIM_SetCompare1(TIM2,18500+(float)(Command.Roller_Speed/2.0f));
         }
         else if(Command.Roller_Switch==1)
         {
-            TIM_SetCompare1(TIM2,18450-(float)(Command.Roller_Speed/2.0f));
+            TIM_SetCompare1(TIM2,18500-(float)(Command.Roller_Speed/2.0f));
         }
     }
     else 
     {
-        TIM_SetCompare1(TIM2,18450);
+        TIM_SetCompare1(TIM2,18500);
     }
     }
     else if(MODE==CALI_MODE)
     {
-        TIM_SetCompare1(TIM2,18450);    
+        TIM_SetCompare1(TIM2,18500);    
     }
     
 }

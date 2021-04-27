@@ -53,19 +53,21 @@ int main(void)
        
        
 
-       key_value=KEY_Scan(1);
-       
+    key_value=KEY_Scan(1);
+    
 /****putter control test*********/
+
 #if 1
     switch(key_value)
     {
         case KEY_S1:
-            /*
+/*
             if(distance<5)
                 distance++;
             else
                 distance=5;
-        */
+*/
+        
 //            Putter_IN1=1;
 //            Putter_IN2=0;
             break;

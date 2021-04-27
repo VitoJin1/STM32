@@ -7,6 +7,7 @@ void BSP_Init(void)
     u8 t;
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置系统中断优先级分组2
 	delay_init(168);      //初始化延时函数
+    
     Valve_Control_Init();
 	LED_Init();					 
     LargeCurrentSwitch();
@@ -23,7 +24,8 @@ void BSP_Init(void)
     //Master_06_Slove(Cable_Motor_Left_Address,Cable_Motor_Speed_Address,0);
     delay_ms(100);
     //Master_06_Slove(Cable_Motor_Right_Address,Cable_Motor_Speed_Address,0);
-    TIM2_PWM_Init(19999,83);
+   TIM2_PWM_Init(19999,83); 
+   Roller_init();
     TIM8_PWM_Init(1000-1,84-1);//0.1hz
     //EXTIX_Init();
     Step_Motor_Dir_Init(); 
@@ -43,13 +45,13 @@ void BSP_Init(void)
     Ultrasonic1_Init( );
     //Fan_Control=1;
     CableMotor_Dir_Init();
-    TIM10_Freq_Config(0);
-    TIM11_Freq_Config(0);
+    TIM10_Freq_Config( 0 );
+    TIM11_Freq_Config( 0 );
     TIM4_PWM_Init(19999,84-1);
     Pump_Init();
-    ROLLER_Switch=1;
-    delay_ms(1000);
-    Roller_init();
+//    ROLLER_Switch=1;
+//    delay_ms(1000);
+   
     ProPLeft_Switch=1;
     delay_ms(1000);
     ProPRight_Switch=1;
