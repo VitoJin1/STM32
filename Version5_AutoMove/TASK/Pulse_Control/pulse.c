@@ -1,6 +1,6 @@
 #include "pulse.h"
 
-struct TwoPointAutoMove AutoMove={{0,0},{0,0},0,200,0,0,0,&ClearData};//60s run all 
+struct TwoPointAutoMove AutoMove={{0,0},{0,0},0,1800,0,0,0,&ClearData};//60s run all 
 
 /*
 TIM5 Init

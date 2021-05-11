@@ -243,9 +243,9 @@ unsigned long  wsSetColor(unsigned long Rval,unsigned long Gval,unsigned long Bv
 void LEDBand_ShowSignal(float left_power,float left_tempeature,float right_power,float right_tempeature)
 {
     unsigned long left_up_color=0xffffff;
-    unsigned long left_down_color=0xffffff;
+    //unsigned long left_down_color=0xffffff;
     unsigned long right_up_color=0xffffff;
-    unsigned long right_down_color=0xffffff;
+    //unsigned long right_down_color=0xffffff;
     left_power=fabs(left_power);
     right_power=fabs(right_power);
     //left_up_color=wsSetColor(0xff,0xff-float2RGB(0,20,left_power),0xff-float2RGB(0,20,left_power));

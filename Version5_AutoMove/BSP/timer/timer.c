@@ -193,7 +193,7 @@ void TIM3_Int_Init(u16 arr,u16 psc)
 }
 
 int Unlock_signal_cnt=0;
-int calc_cnt[4]={0,0,0,0};
+
 
 //定时器3中断服务函数
 void TIM3_IRQHandler(void)
@@ -202,9 +202,6 @@ void TIM3_IRQHandler(void)
 	{
        
 		TIM_ClearITPendingBit(TIM3, TIM_IT_Update); 
-        
-        //accumulate_hor=accumulate_hor+Command.Left_X_Speed;
-        //accumulate_vel=accumulate_vel+Command.Right_Y_Speed;
 //        if(COMMUNICATION_FLAG==1)
 //        {
          if(((time_tick_1ms+97)%SBUS_Updata_Loop==0)){    
@@ -224,50 +221,49 @@ void TIM3_IRQHandler(void)
             Trig1_Enable();
             time_tick_1s++;
         }
-//          if(time_tick_1ms%1000==0)
-//            {
+         // if(time_tick_1ms%1000==0)
+           // {
+        //printf("received %d %d %d %d %d %d %d %d %d %d %d \r\n", remote_data.ch0, remote_data.ch1, remote_data.ch2, remote_data.ch3,remote_data.balance_switch,remote_data.mode_switch,remote_data.prop_speed,remote_data.roller_speed,remote_data.screw_switch,remote_data.valve_switch,remote_data.roller_switch);
+         
 //                printf("decode=%f %f %f %f ",Command.Right_X_Speed, Command.Right_Y_Speed, Command.Left_X_Speed,Command.Left_Y_Speed);
 //                printf("total=%d,cnt=%d\r\n",lora_receive_cnt,Unlock_signal_cnt);
-//            }
+          //  }
         if(ROBOT_UNLOCK==1)
         {
            // if((time_tick_1ms+267)%500==0)
-                //printf("cnt=IMU:%d, OUTER:%d,INNER:%d,CALC:%d\r\n",calc_cnt[0],calc_cnt[1],calc_cnt[2],calc_cnt[3]);
+               
 //                LEDBand_ShowSignal(left_realtime_power,left_realtime_temp,right_realtime_power,right_realtime_temp);
             if((time_tick_1ms+39)%Balance_check_Loop==0)
                     Balance_Check();
-            if(Balance_Stable==1)
-            {
+            if(Balance_Stable==1){
                 if((time_tick_1ms+131)%IMU_Shift_Calibration_Loop==0)
                     IMU_Shift_Cali( );
-                if((time_tick_1ms+53)%PROP_OUTER_LOOP==0)
-                {
-                    PID_OUTER_LOOP( );    
+                
+                if((time_tick_1ms+53)%PROP_OUTER_LOOP==0){
+                    PID_OUTER_LOOP(   );    
                 }
-                if((time_tick_1ms+78)%PROP_INNER_LOOP==0)
-                {
-                    PID_INNER_LOOP( );
-                }
+                if((time_tick_1ms+78)%PROP_INNER_LOOP==0){
+                    PID_INNER_LOOP(   );
+                }   
             }   
-            if((time_tick_1ms+69)%IMU_Updata_Loop==0)
-            {
-                IMU_Decode(IMU_DATA_Cache);
+            if((time_tick_1ms+69)%IMU_Updata_Loop==0){
+                u8 i=0;
+                for(i=0;i<91;i++){
+                    if(IMU_DATA_Cache[i]==0x3a&&IMU_DATA_Cache[i+89]==0x0d&&IMU_DATA_Cache[i+90]==0x0a){
+                        IMU_Decode( &IMU_DATA_Cache[i] );
+                        break;
+                    }
+                }
             }
-            
-            if(time_tick_1ms%Cable_Control_Loop==0)
-            {       
+            if(time_tick_1ms%Cable_Control_Loop==0){       
                 CableMotorControlLoop( );  
             }
-          
-            
-            
+     
             if(((time_tick_1ms+436)%500==0)&&(Safety_Flag==0))
                 Safety_Check_Loop(left_realtime_power,left_realtime_temp,right_realtime_power,right_realtime_temp);
-           
             /*
             if((time_tick_1ms+12)%Step_Motor_Control_Loop==0)
            {
-                
               fun_test(MODE,Command.Arm);
                //Putter_Control_Loop( );
                //FanControlLoop();
@@ -282,10 +278,8 @@ void TIM3_IRQHandler(void)
            if((time_tick_1ms+333)%Valve_Control_Loop==0)
                Valve_Control(); 
         }
-        else
-        {
-            if((time_tick_1ms+34)%Unlock_Robot_Loop==0)
-        {
+        else{
+            if((time_tick_1ms+34)%Unlock_Robot_Loop==0){
             Unlock_Robot_Detect();
         }
         }
@@ -294,9 +288,7 @@ void TIM3_IRQHandler(void)
 
        if((time_tick_1ms+784)%Command_Disconnect_Loop==0)
            DisConnect_Check();
-        
     //}
-           
        time_tick_1ms++;
     
 	
@@ -304,12 +296,7 @@ void TIM3_IRQHandler(void)
     }
 }
 
-void Target_Update(void)
-{
-    Absolute_Calc( FIFO_TEST[FIFO_Count][0],FIFO_TEST[FIFO_Count][1],Initial_C,Initial_Left,Initial_Right,Rotate_Matrix);
-    FIFO_Count++;
-    FIFO_Count=FIFO_Count%16;
-}
+
 
 void Unlock_Robot_Detect(void)
 {
@@ -319,7 +306,9 @@ void Unlock_Robot_Detect(void)
        Unlock_signal_cnt=0;
    if(Unlock_signal_cnt>=20)
    {
-       if(Command.Arm==0&&Command.Mode==MANUAL_MODE&&Command.Balance_Switch==0&&Command.Solenoid_Switch==0&&Command.Left_Prop_Speed==0&&Command.Right_Prop_Speed==0&&Command.Roller_Speed==0&&Command.Pose==0&&Command.Pump_Speed==0)
+       if(Command.Arm==0&&Command.Mode==MANUAL_MODE&&Command.Balance_Switch==0&&\
+           Command.Solenoid_Switch==0&&Command.Left_Prop_Speed==0&&Command.Right_Prop_Speed==0\
+       &&Command.Roller_Speed==0&&Command.Pose==0&&Command.Pump_Switch==0&&Command.ACRO_Switch==0)
        {
            LED_B=0;
            LED_Y=1;
@@ -352,7 +341,7 @@ void TIM12_Init(void)// 2s gap for manual start propeller
 	TIM_ITConfig(TIM12,TIM_IT_Update,ENABLE); 
 	
 	
-	NVIC_InitStructure.NVIC_IRQChannel=TIM8_BRK_TIM12_IRQn; 
+	NVIC_InitStructure.NVIC_IRQChannel=TIM8_BRK_TIM12_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority=1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;

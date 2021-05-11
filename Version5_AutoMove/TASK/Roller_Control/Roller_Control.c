@@ -51,7 +51,10 @@ void Roller_init(void)
 }
 void Pump_Control(void){
     if(MODE==MANUAL_MODE||MODE==AUTO_MODE){
-        TIM_SetCompare2(TIM4,19000-Command.Pump_Speed);
+        if(Command.Pump_Switch==1)
+        TIM_SetCompare2(TIM4,18250);
+        else if(Command.Pump_Speed==0)
+            TIM_SetCompare2(TIM4,19000);
     }
     else if(MODE==CALI_MODE){
         TIM_SetCompare2(TIM4,19000);

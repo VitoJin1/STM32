@@ -3,7 +3,7 @@
 #include "main.h"
 
 extern u8 SYSTEM_ERROR;
-extern int calc_cnt[4];
+
 extern u8 ROBOT_UNLOCK;
 void TIM3_Int_Init(u16 arr,u16 psc);
 void Timer7_Init(void);

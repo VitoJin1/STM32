@@ -12,7 +12,8 @@ extern u8  USART_RX_BUF[USART_REC_LEN]; //½ÓÊÕ»º³å,×î´óUSART_REC_LEN¸ö×Ö½Ú.Ä©×Ö½
 extern u16 USART_RX_STA;         		//½ÓÊÕ×´Ì¬±ê¼Ç	
 extern u8 COMMUNICATION_FLAG;
 extern u8 SBUS_DATA_Cache[44];
-extern u8 IMU_DATA_Cache[91];
+//extern u8 IMU_DATA_Cache[91];
+extern u8 IMU_DATA_Cache[182];
 //Èç¹ûÏë´®¿ÚÖÐ¶Ï½ÓÊÕ£¬Çë²»Òª×¢ÊÍÒÔÏÂºê¶¨Òå
 void USART1_Init(u32 bound);
 void uart3_init(u32 bound);
@@ -34,13 +35,17 @@ typedef struct
     int16_t ch3;
     int16_t valve_switch;
     int16_t balance_switch;
+    int16_t ACRO_switch;
+    int16_t pump_switch;
     int16_t mode_switch;//0--top 1--middle 2--down start with top
     int16_t roller_switch;
     int16_t screw_switch;// 0---middle 1--extend 2--retract start with middle
+    
     int16_t roller_speed;
     int16_t prop_speed;
     int16_t pose;// 0---top 1---middle  2---down start with top 
     int16_t pump_speed;
+    
 }Remote;
 extern Remote remote_data;
 typedef struct 
@@ -64,7 +69,8 @@ typedef struct
     short Mode;
     short Arm;
     short Pose;
-    
+    short ACRO_Switch;
+    short Pump_Switch;
 }Message;
 
 
@@ -87,7 +93,7 @@ extern IMU_RawData imu_rawdata;
 
 extern int lora_receive_cnt;
 extern Message Command;
-extern int64_t time_tick_Command;
+
 extern int64_t time_tick_LORA;
 
 #endif

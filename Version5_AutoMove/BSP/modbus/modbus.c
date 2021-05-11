@@ -102,9 +102,9 @@ u8 RS485Receive_BUF[4];
 u8 RS485RL_Flag=0;
 volatile u16 receive_len=0;
 int modbusReceive_cnt=0;
-void USART2_IRQHandler(void)//串口2中断服务程序
+void USART2_IRQHandler(void)
 {
- u8 clear_flag=0;
+  u8 clear_flag=0;
     
 //    if(USART_GetITStatus(USART2,USART_IT_RXNE)!=RESET)
 //    {
@@ -128,126 +128,8 @@ void USART2_IRQHandler(void)//串口2中断服务程序
         DMA_Cmd(DMA1_Stream5,ENABLE);
         //count=MODBUS_RECEIVE_BUF-DMA_GetCurrDataCounter(DMA1_Stream5);
         USART_ClearITPendingBit(USART2,USART_IT_IDLE);
-        
-//        printf("count=%d\r\n",receive_len);
-//        receive_len=0;
-//        for(i=0;i<8;i++)
-//        {
-//            USART_SendData(USART1,MODBUS_DATA_Cache[i]);
-//            while(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=SET);
-//        }
-//        USART_SendData(USART1,0xaa);
-//        while(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=SET);
-//        USART_SendData(USART1,0x0a);
-//        while(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=SET);
-//        
     }
-    /*
-	 if(USART_GetITStatus(USART2,USART_IT_RXNE)!=RESET)
-        {
-            res=USART_ReceiveData(USART2);
-            //USART_SendData(UART4,res);
-            if((RS485Receive_STA&0x80)==0)//not finish receiving
-            {
-                if(res==0x01|res==0x02)
-                {
-                    
-                    RS485Receive_STA|=0x10;
-                    if(res==0x01)
-                        RS485RL_Flag=0;
-                    else if(res==0x02)
-                        RS485RL_Flag=1;
-                }
-                else
-                {
-                    if(RS485Receive_STA&0x10)
-                    {
-                        //USART_SendData(UART4,0x01);
-                        if(res==0x03)   
-                        {
-                            RS485Receive_STA|=0x20;
-                            //USART_SendData(UART4,0xAA);
-                        }
-                        else
-                        { 
-                            //USART_SendData(UART4,res);
-                            if(RS485Receive_STA&0x20)
-                            {
-                                if(res==0x02)
-                                {
-                                    //USART_SendData(UART4,0x03);
-                                    
-                                    RS485Receive_STA|=0x40;
-                                }
-                                else 
-                                {
-                                   
-                                    if(RS485Receive_STA&0x40)
-                                {
-                                    if(RS485RL_Flag==0)
-                                    {
-                                        RS485Receive_BUF[RS485_index]=res;
-                                        
-                                    }
-                                    else if(RS485RL_Flag==1)
-                                    {
-                                        RS485Receive_BUF[RS485_index+2]=res;
-                                    }
-                                    RS485_index++;
-                                    if(RS485_index==2)
-                                    {
-                                        RS485_index=0;
-                                        RS485Receive_STA|=0x80;
-                                    }
-                                }
-                                }   
-                            }
-                        }
-                    }
-                }
-            }
-//            RS485_Receive[RS485_index]=res;
-//            Max_Power_Left_Count1++;
-//            if(((RS485_Receive[(RS485_index+1)%7]==0x01)||(RS485_Receive[(RS485_index+1)%7]==0x02))&&RS485_Receive[(RS485_index+2)%7]==0x03&&RS485_Receive[(RS485_index+3)]==0x02)
-//            {   Max_Power_Left_Count2++;
-//                u8 * poniter=&(RS485_Receive[RS485_index+1]);
-//                CRC_Result=CRC_Compute(poniter,5);
-//                if(((CRC_Result>>8&0xFF)==RS485_Receive[RS485_index+6])&&((CRC_Result&0xFF)==RS485_Receive[RS485_index]))
-//                {
-//                    if(RS485_Receive[(RS485_index+1)%7]==0x01)
-//                    {
-//                        Max_Power_Left=((RS485_Receive[(RS485_index+4)%7]>>4)&0x0F)*16*16*16+(RS485_Receive[(RS485_index+4)%7]&0x0F)*16*16+((RS485_Receive[(RS485_index+5)%7]>>4)&0x0F)*16+((RS485_Receive[(RS485_index+5)%7]>>4)&0x0F)*1;
-//                        USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-//                    }
-//                    else if(RS485_Receive[(RS485_index+1)%7]==0x02)
-//                    {
-//                        Max_Power_Right=((RS485_Receive[(RS485_index+4)%7]>>4)&0x0F)*16*16*16+(RS485_Receive[(RS485_index+4)%7]&0x0F)*16*16+((RS485_Receive[(RS485_index+5)%7]>>4)&0x0F)*16+((RS485_Receive[(RS485_index+5)%7]>>4)&0x0F)*1;
-//                        USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-//                    }
-//                }
-//            }
-//            RS485_index=(RS485_index+1)%7;
 
-//            if(RS485_RX_CNT<199)
-//                {
-//                    RS485_RX_BUFF[RS485_RX_CNT]=res;
-//                    RS485_RX_CNT++;
-//                    //Command.x_vel++;
-//                   
-//                    TIM_ClearITPendingBit(TIM14,TIM_IT_Update);//清除定时器溢出中断
-//                    TIM_SetCounter(TIM14,0);//当接收到一个新的字节，将定时器7复位为0，重新计时（相当于喂狗）
-//                    TIM_Cmd(TIM14,ENABLE);//开始计时
-//                }
-        }*/
-        
-        /*
-        if(RS485Receive_STA&0x80)//all received
-        {
-            //USART_SendData(UART4,0x04);
-            Max_Power_Left=((RS485Receive_BUF[1]>>4)&0x0F)*16*16*16+(RS485Receive_BUF[1]&0x0F)*16*16+((RS485Receive_BUF[0]>>4)&0x0F)*16+(RS485Receive_BUF[0]&0x0F)*1;
-            Max_Power_Right=((RS485Receive_BUF[3]>>4)&0x0F)*16*16*16+(RS485Receive_BUF[3]&0x0F)*16*16+((RS485Receive_BUF[2]>>4)&0x0F)*16+(RS485Receive_BUF[2]&0x0F)*1;                       
-            RS485Receive_STA=0x00;
-        }*/
 
 }
 u8 i=0;
@@ -289,7 +171,6 @@ void MODBUS_Data_Process(uint8_t *pData)
             right_realtime_torque=fPower_decode(&(pData[3]));
             printf("right=%f\r\n",right_realtime_torque);
         }
-            
     }
     else 
     {
@@ -301,7 +182,7 @@ float fPower_decode(u8 *pData)
     float result;
     result=0.1*(pData[0]*256+pData[1]);
     if(result>=200)                 //65535/2/10acctually
-        result=result-6553.5;
+        result=result-6553.5f;
     return result;
 }
 u16 iTempeature_decode(u8 *pData)

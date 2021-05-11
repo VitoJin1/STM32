@@ -4,7 +4,6 @@ u8 test_data[20][20];				//存放LCD ID字符串
 
 void BSP_Init(void)
 {
-    u8 t;
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置系统中断优先级分组2
 	delay_init(168);      //初始化延时函数
     
@@ -15,9 +14,6 @@ void BSP_Init(void)
     LEDBand_Init();
     SetLEDBand(WsDat_Dark,WsDat_Dark);
     USART1_Init(115200);
-//#    if ENABLE_BLUETOOTH
-//    //UART4_Init(115200);	 //串口初始化为115200  
-//#    endif 
     uart4_init(115200);
     uart3_init(115200);
     RS485_Init();//USART2  
@@ -49,16 +45,19 @@ void BSP_Init(void)
     TIM11_Freq_Config( 0 );
     TIM4_PWM_Init(19999,84-1);
     Pump_Init();
+    
 //    ROLLER_Switch=1;
 //    delay_ms(1000);
-   
+
+/*
     ProPLeft_Switch=1;
     delay_ms(1000);
     ProPRight_Switch=1;
-    delay_ms(1000);
+    delay_ms(1000);*/
     Propeller_Init();
     Putter_IN1=0;
     Putter_IN2=0;
+    LPF_1orderRC_F_init(&Prop_PID_Output_Filter);
     TIM3_Int_Init(999,83); 
 }
 

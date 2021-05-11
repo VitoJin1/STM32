@@ -9,7 +9,7 @@ int Balance_stable_cnt=0;
 u8 Balance_Stable=0;
 float temp_l=0.0;
 float temp_r=0.0;
-u8 prop_safe_start=0;
+u8 prop_safe_start=0;//remember to set to 0 when not in debug mode
 float flimit(float input,float min, float max)
 {
     
@@ -48,6 +48,7 @@ void Balance_Check(void)
                 LED_G=0;
             }
             Z_Euler_Last_data=Z_Euler_reference;
+            LPF_1orderRC_F_init(&Prop_PID_Output_Filter);
         }
         else if(Balance_Flag==0)
         {
@@ -84,6 +85,7 @@ void ESC_Init_Detect()//detect init signal when not finish init
        Propeller_Init(); 
     }
 }
+
 void Propeller_Control(void)
 {
     if(prop_safe_start==0)
@@ -91,21 +93,19 @@ void Propeller_Control(void)
         if(Command.Left_Prop_Speed==0&&Command.Right_Prop_Speed==0&&Command.Balance_Switch==0&&ultraHeightAlert==0)
             prop_safe_start=1;
     }
-    calc_cnt[3]++;
+   
     float prop_speed_left=0;
     float prop_speed_right=0;
     float prop_PID_output_l=0.0;
     float prop_PID_output_r=0.0;
-    if(Balance_Stable==1)
-    {
+    if(Balance_Stable==1){
         prop_PID_output_l=200-PROP_INNER_PID.output;
-        prop_PID_output_l=flimit(prop_PID_output_l,0,750);
+        LIMIT_MIN_MAX(prop_PID_output_l,0,750);
         
         prop_PID_output_r=200+PROP_INNER_PID.output;
-        prop_PID_output_r=flimit(prop_PID_output_r,0,750);
+        LIMIT_MIN_MAX(prop_PID_output_r,0,750);
     }
-    else
-    {
+    else{
         prop_PID_output_l=0.0;
         prop_PID_output_r=0.0;
     }
@@ -114,13 +114,24 @@ void Propeller_Control(void)
     {
             prop_speed_left=Command.Left_Prop_Speed;
             prop_speed_right=Command.Right_Prop_Speed; 
-            temp_l=prop_speed_left+prop_PID_output_l;
-            temp_r=prop_speed_right+prop_PID_output_r;
-            temp_l=flimit(temp_l,0,750.0);
-            temp_r=flimit(temp_r,0,750.0);
-            //printf("L:%f R:%f \r\n",temp_l,temp_r);
-            TIM_SetCompare3(TIM2,19000-temp_l);
-            TIM_SetCompare4(TIM2,19000-temp_r);
+            //enter pid mode
+            if(Balance_Stable==1)
+            {
+                temp_l=prop_speed_left  + prop_PID_output_l;
+                temp_r=prop_speed_right + prop_PID_output_r;
+            }
+            //manual balance mode
+            else
+            {
+                temp_l=prop_speed_left  + Command.Left_X_Speed*200;
+                temp_r=prop_speed_right - Command.Left_X_Speed*200;
+            }
+            
+            LIMIT_MIN_MAX(temp_l,0,750);
+            LIMIT_MIN_MAX(temp_r,0,750);
+            
+            TIM_SetCompare3( TIM2,19000-(int)temp_l );
+            TIM_SetCompare4( TIM2,19000-(int)temp_r );                      
     }
 
     else if (MODE==CALI_MODE)
@@ -155,6 +166,7 @@ void Propeller_Init(void)
     prop_initing_flag=0;
 }
 
+#if 0
 
 //void Prop_PID_Calc(struct PID_Regulator *pid)
 //{
@@ -233,13 +245,14 @@ void Propeller_Init(void)
 //    
 //    pid->err[0]=pid->err[1];  
 //}
+#endif
 float IMU_Shift=0.0;
 void IMU_Shift_Cali(void)
 {
     if((Command.Left_X_Speed!=0))
     {
         if(MODE==AUTO_MODE)
-            IMU_Shift=IMU_Shift+0.02*Command.Left_X_Speed;
+            IMU_Shift=IMU_Shift+0.02f*Command.Left_X_Speed;
         else if((MODE==CALI_MODE)||(MODE==MANUAL_MODE))
             IMU_Shift=0;
             

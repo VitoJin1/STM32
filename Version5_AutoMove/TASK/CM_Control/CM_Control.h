@@ -17,10 +17,10 @@
 #define Unlock_Robot_Loop 100
 #define Balance_check_Loop 100
 #define IMU_Shift_Calibration_Loop 100//100ms manual calibrate IMU 
-#define PROP_OUTER_LOOP 100
-#define PROP_INNER_LOOP 50
+#define PROP_OUTER_LOOP 50
+#define PROP_INNER_LOOP 10
 #define PN008 100
-#define IMU_Updata_Loop 20 //20ms update IMU message
+#define IMU_Updata_Loop 10 //10ms update IMU message
 #define Cable_Control_Loop 100// 10ms control cable position
 
 #define Step_Motor_Control_Loop 100// 100ms control loop
@@ -56,7 +56,8 @@
 #define PROP_ANGLE_OUTPUT_MAX 3
 #define PROP_GYRO_OUTPUT_MAX 200
 
-
+#define PROP_GYRO_FEEDFORD 200
+#define PI 3.1415926535f
 
 //*******************************************************
 typedef struct PID_Regulator
@@ -67,12 +68,12 @@ typedef struct PID_Regulator
     float kp;
     float ki;
     float kd;
-    float componentKp;
-    float componentKi;
-    float componentKd;
-    float componentKpMax;
-    float componentKiMax;
-    float componentKdMax;
+    float componentP;
+    float componentI;
+    float componentD;
+    float componentPMax;
+    float componentIMax;
+    float componentDMax;
     float output;
     float outputMax;
     float outputLast;
@@ -84,51 +85,29 @@ typedef struct PID_Regulator
 }PID_Regulator;
 void PID_Calc(PID_Regulator *pid);
 
-#define CM_LEFT_PID_Init \
-{\
-  0,0,{0,0},\
-  CM_LEFT_KP,CM_LEFT_KI,CM_LEFT_KD,\
-  0,0,0,\
-  1500,17500,0,\
-  0,CM_LEFT_OUTPUTMAX,0,\
-  &PID_Calc,\
-  CM_LEFT_RAMP,\
-}\
+typedef struct{
+    float Vi;
+    float Vo_last;
+    float Vo;
+    float Fcutoff;
+    float Fs;
+}LPF_1orderRC_F;
 
-#define CM_RIGHT_PID_Init \
-{\
-  0,0,{0,0},\
-  CM_RIGHT_KP,CM_RIGHT_KI,CM_RIGHT_KD,\
-  0,0,0,\
-  1500,17500,0,\
-  0,CM_RIGHT_OUTPUTMAX,0,\
-  &PID_Calc,\
-  CM_RIGHT_RAMP,\
-}\
-
-#define CM_LEFT_PID_AUTO_Init \
-{\
-  0,0,{0,0},\
-  CM_LEFT_KP_AUTO,CM_LEFT_KI_AUTO,CM_LEFT_KD_AUTO,\
-  0,0,0,\
-  1500,17500,0,\
-  0,CM_LEFT_OUTPUTMAX_AUTO,0,\
-  &PID_Calc,\
-  CM_LEFT_RAMP,\
-}\
-
-#define CM_RIGHT_PID_AUTO_Init \
-{\
-  0,0,{0,0},\
-  CM_RIGHT_KP_AUTO,CM_RIGHT_KI_AUTO,CM_RIGHT_KD_AUTO,\
-  0,0,0,\
-  1500,17500,0,\
-  0,CM_RIGHT_OUTPUTMAX_AUTO,0,\
-  &PID_Calc,\
-  CM_RIGHT_RAMP,\
-}\
 
 //for balance improvement 
+#define PROP_ANGLE_LOOP_PID \
+{\
+  0,0,{0,0},\
+  1.0,0,0.0,\
+  0,0,0,\
+  0.7,0,0.7,\
+  0,PROP_ANGLE_OUTPUT_MAX,0,\
+  &PropPIDOutterCalc,\
+  CM_LEFT_RAMP,\
+  0,0,\
+}\
+
+
 //#define PROP_ANGLE_LOOP_PID \
 //{\
 //  0,0,{0,0},\
@@ -136,23 +115,10 @@ void PID_Calc(PID_Regulator *pid);
 //  0,0,0,\
 //  500000,0,500000,\
 //  0,PROP_ANGLE_OUTPUT_MAX,0,\
-//  &PropPIDOutterCalc,\
+//  &Prop_PID_Calc,\
 //  CM_LEFT_RAMP,\
 //  0,0,\
 //}\
-
-
-#define PROP_ANGLE_LOOP_PID \
-{\
-  0,0,{0,0},\
-  1.5,0,0.0,\
-  0,0,0,\
-  500000,0,500000,\
-  0,PROP_ANGLE_OUTPUT_MAX,0,\
-  &Prop_PID_Calc,\
-  CM_LEFT_RAMP,\
-  0,0,\
-}\
 
 //innner loop pid init structure
 
@@ -160,36 +126,36 @@ void PID_Calc(PID_Regulator *pid);
 
 
 //for balance improvement
+//400 0 200 before
+#define PROP_GYRO_LOOP_PID \
+{\
+  0,0,{0,0},\
+  400,0,200,\
+  0,0,0,\
+  200,0,200,\
+  0,PROP_GYRO_OUTPUT_MAX,0,\
+  &PropPIDInnnerCalc,\
+  CM_LEFT_RAMP,\
+  0,0,\
+}\
+
 //#define PROP_GYRO_LOOP_PID \
 //{\
 //  0,0,{0,0},\
-//  100,0,0,\
+//  250,0,50,\
 //  0,0,0,\
 //  500000,0,500000,\
 //  0,PROP_GYRO_OUTPUT_MAX,0,\
-//  &PropPIDInnnerCalc,\
+//  &Prop_PID_Calc,\
 //  CM_LEFT_RAMP,\
 //  0,0,\
 //}\
 
 
-#define PROP_GYRO_LOOP_PID \
-{\
-  0,0,{0,0},\
-  250,0,50,\
-  0,0,0,\
-  500000,0,500000,\
-  0,PROP_GYRO_OUTPUT_MAX,0,\
-  &Prop_PID_Calc,\
-  CM_LEFT_RAMP,\
-  0,0,\
-}\
-
-
 
 extern PID_Regulator CM_LEFT_PID;
 extern PID_Regulator CM_RIGHT_PID;
-
+extern LPF_1orderRC_F Prop_PID_Output_Filter;
 
 
 extern int64_t Last_Left_set;
@@ -214,8 +180,7 @@ extern int Safety_Flag;
 
 void PID_Loop(void);
 void CableMotorControlLoop(void);
-void Movement_Calc(float Left_Right,float  Up_Down,long c, long left,long right,double theta);
-void Absolute_Calc(float Left_Right,float Up_Down,long c, long left,long right,double theta);
+
 void Safety_Check_Loop(float left_power, u16 left_temp, float right_power,u16 right_temp);
 void PID_OUTER_LOOP(void);
 void PID_INNER_LOOP(void);
@@ -225,5 +190,7 @@ extern  PID_Regulator PROP_OUTER_PID;
 extern  PID_Regulator PROP_INNER_PID;
 void Prop_PID_Calc(  PID_Regulator *pid);
 void PID_OUTER_Clear(void);
+void LPF_1orderRC_F_init(LPF_1orderRC_F *v);
+float LPF_1orderRC_F_FUNC(LPF_1orderRC_F *v);
 #endif
 

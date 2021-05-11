@@ -14,7 +14,8 @@ void Remote_to_Message()//remoter data transfer to message data 加入零点死区
         Command.Arm=0;
         Command.Roller_Switch=0;
         Command.Balance_Switch=0;
-        
+        Command.ACRO_Switch   =0;
+        Command.Pump_Switch   =0;
         Command.Left_Prop_Speed=0;
         Command.Right_Prop_Speed=0;
         Command.Roller_Speed=0;
@@ -39,6 +40,8 @@ void Remote_to_Message()//remoter data transfer to message data 加入零点死区
         Command.Roller_Switch    = sRamp_for_LORA(remote_data.roller_switch);
         Command.Balance_Switch   = sRamp_for_LORA(remote_data.balance_switch);
         Command.Pose             = sRamp_for_LORA(remote_data.pose);
+        Command.ACRO_Switch      = sRamp_for_LORA(remote_data.ACRO_switch);
+        Command.Pump_Switch      = sRamp_for_LORA(remote_data.pump_switch);
         MODE=Command.Mode;
        
         
