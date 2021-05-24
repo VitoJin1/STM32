@@ -2,8 +2,8 @@
 新建文件夹，包含gitignore文件
 $git init
 $git add +文件名
-$git commit -u "XXXXXX"
-$git remote  add origin master git@github.com:XXXX.git
+$git commit -m "XXXXXX"
+$git remote  add origin git@github.com:XXXX.git
 $git push -u orign master
 如果有问题可以删除远程仓库重新来一次
 $git remote rm origin
